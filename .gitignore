@@ -1,0 +1,8 @@
+# Build directory
+src/build
+
+# Vim swap file
+*.swp
+
+# ctags file
+tags
