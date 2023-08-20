@@ -34,21 +34,10 @@
 #include "pmm.h"
 #include "watchdog.h"
 
-void vApplicationSetupTimerInterrupt(){
-}
 void vConfigureTimerForRunTimeStats(){
 }
 
-/* The counters used by the various examples.  The usage is described in the
- * comments at the top of this file.
- */
-static volatile uint32_t ulCountOfTimerCallbackExecutions = 0;
-static volatile uint32_t ulCountOfItemsReceivedOnQueue = 0;
-static volatile uint32_t ulCountOfReceivedSemaphores = 0;
-
-volatile uint32_t ulRunTimeCounterOverflows;
-
-void prvBlink(){
+void prvBlink0(){
     while (1){
         gpioLED0_PORT_OUT ^= (1 << gpioLED0_PIN);
         for(volatile uint64_t i = 0; i < 0x7fff; i++);
@@ -64,49 +53,21 @@ void prvBlink1(){
 int main(void)
 {
    
-    /* Configure the system ready to run the demo.  The clock configuration
-    can be done here if it was not done before main() was called. */
     vSetupHardware();
- 
-    gpioLED0_PORT_OUT |= (1 << gpioLED0_PIN);
-    gpioLED1_PORT_OUT |= (1 << gpioLED1_PIN);
-
-    /* Create the queue receive task as described in the comments at the top
-    of this file. */
-    xTaskCreate(     /* The function that implements the task. */
-                    prvBlink,
-                    /* Text name for the task, just to help debugging. */
+    xTaskCreate(    prvBlink0,
                     "",
-                    /* The size (in words) of the stack that should be created
-                    for the task. */
                     configMINIMAL_STACK_SIZE,
-                    /* A parameter that can be passed into the task.  Not used
-                    in this simple demo. */
                     NULL,
-                    /* The priority to assign to the task.  tskIDLE_PRIORITY
-                    (which is 0) is the lowest priority.  configMAX_PRIORITIES - 1
-                    is the highest priority. */
                     1,
-                    /* Used to obtain a handle to the created task.  Not used in
-                    this simple demo, so set to NULL. */
                     NULL );
 
-
-    /* Create the queue send task in exactly the same way.  Again, this is
-    described in the comments at the top of the file. */
     xTaskCreate(     prvBlink1,
                     "",
                     configMINIMAL_STACK_SIZE,
                     NULL,
                     1,
                     NULL );
-    //xTaskCreate(     prvBlink2,
-    //                "LED3",
-    //                configMINIMAL_STACK_SIZE,
-    //                NULL,
-    //                1,
-   
-
+    
     /* Start the tasks and timer running. */
     vTaskStartScheduler();
 
