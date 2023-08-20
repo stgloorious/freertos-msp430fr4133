@@ -1,0 +1,4 @@
+file build/app
+target remote :2000
+tui enable
+b build/_deps/freertos_kernel_port-src/GCC/MSP430FR4133/port.c:237

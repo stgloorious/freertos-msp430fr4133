@@ -13,12 +13,13 @@ set(FETCHCONTENT_QUIET FALSE)
 
 # Build options
 set(TARGET_DEVICE MSP430FR4133)
-set(TARGET_INCLUDE_DIR /usr/msp430-gcc-support-files/include)
-set(CMAKE_C_COMPILER /usr/bin/msp430-elf-gcc)
-set(CMAKE_CXX_COMPILER /usr/bin/msp430-elf-g++)
-add_compile_definitions(__${TARGET_DEVICE}__)
-add_compile_options(-Wall -Werror -O3 -ffreestanding -save-temps)
-include_directories(/usr/msp430-gcc-support-files/include)
+set(TARGET_INCLUDE_DIR /usr/msp430-gcc/include)
+set(CMAKE_C_COMPILER /usr/msp430-gcc/bin/msp430-elf-gcc)
+set(CMAKE_CXX_COMPILER /usr/msp430-gcc/bin/msp430-elf-g++)
+add_compile_options(-mmcu=${TARGET_DEVICE})
+add_compile_options(-Wall -Werror -Og -ggdb)
+include_directories(${TARGET_INCLUDE_DIR} ${CMAKE_SOURCE_DIR})
+add_link_options(-L ${TARGET_INCLUDE_DIR} -T ${TARGET_INCLUDE_DIR}/msp430fr4133.ld)
 
 # FreeRTOS Kernel
 FetchContent_Declare(
@@ -56,24 +57,27 @@ target_compile_definitions(
     INTERFACE
     projCOVERAGE_TEST=0
 )
-set(FREERTOS_HEAP "4" CACHE STRING "" FORCE)
+set(FREERTOS_HEAP "2" CACHE STRING "" FORCE)
 
 # Port for target device
 set(FREERTOS_PORT A_CUSTOM_PORT CACHE STRING "")
 add_library(freertos_kernel_port INTERFACE)
 target_sources(
     freertos_kernel_port 
-    PRIVATE
-    _deps/freertos_kernel_port-src/GCC/${TARGET_DEVICE}/port.c
-    _deps/freertos_kernel_port-src/GCC/${TARGET_DEVICE}/portmacro.h
-    _deps/freertos_kernel_port-src/GCC/${TARGET_DEVICE}/data_model.h
-    _deps/freertos_kernel_port-src/GCC/${TARGET_DEVICE}/portext.asm
+    PUBLIC
+    ${CMAKE_BINARY_DIR}/_deps/freertos_kernel_port-src/GCC/${TARGET_DEVICE}/port.c
 )
 target_include_directories(
     freertos_kernel_port
     INTERFACE
-    build/_deps/freertos_kernel_port-src/GCC/${TARGET_DEVICE}
+    ${CMAKE_BINARY_DIR}/_deps/freertos_kernel_port-src/GCC/${TARGET_DEVICE}
 )
+
 
 FetchContent_MakeAvailable(freertos_kernel)
 FetchContent_MakeAvailable(freertos_kernel_port)
+
+add_executable(app main.c clock.c gpio.c hardware.c)
+target_link_libraries(app freertos_kernel freertos_kernel_port)
+
+install(CODE "execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/upload.sh ${CMAKE_BINARY_DIR})")
