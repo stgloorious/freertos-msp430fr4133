@@ -1,5 +1,5 @@
 # Build directory
-src/build
+build
 
 # Vim swap file
 *.swp

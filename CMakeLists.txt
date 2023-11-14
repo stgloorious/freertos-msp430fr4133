@@ -18,8 +18,11 @@ set(CMAKE_C_COMPILER /usr/msp430-gcc/bin/msp430-elf-gcc)
 set(CMAKE_CXX_COMPILER /usr/msp430-gcc/bin/msp430-elf-g++)
 add_compile_options(-mmcu=${TARGET_DEVICE})
 add_compile_options(-Wall -Werror -Og -ggdb)
-include_directories(${TARGET_INCLUDE_DIR} ${CMAKE_SOURCE_DIR})
-add_link_options(-L ${TARGET_INCLUDE_DIR} -T ${TARGET_INCLUDE_DIR}/msp430fr4133.ld)
+add_link_options(-L ${TARGET_INCLUDE_DIR})
+add_link_options(-T ${TARGET_INCLUDE_DIR}/msp430fr4133.ld)
+include_directories(${TARGET_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR})
+include_directories(inc/)
 
 # FreeRTOS Kernel
 FetchContent_Declare(
@@ -35,7 +38,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     freertos_kernel_port
     GIT_REPOSITORY
-    git@github.com:stgloorious/freertos-port-gcc-msp430fr4133.git
+    https://github.com/stgloorious/freertos-port-gcc-msp430fr4133.git
     GIT_TAG             master
     GIT_PROGRESS        TRUE
     GIT_SHALLOW         TRUE
@@ -73,11 +76,11 @@ target_include_directories(
     ${CMAKE_BINARY_DIR}/_deps/freertos_kernel_port-src/GCC/${TARGET_DEVICE}
 )
 
-
 FetchContent_MakeAvailable(freertos_kernel)
 FetchContent_MakeAvailable(freertos_kernel_port)
 
-add_executable(app main.c clock.c gpio.c hardware.c)
+FILE(GLOB srcs src/*.c)
+add_executable(app ${srcs})
 target_link_libraries(app freertos_kernel freertos_kernel_port)
 
 install(CODE "execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/upload.sh ${CMAKE_BINARY_DIR})")
