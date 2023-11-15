@@ -1,4 +1,6 @@
 # FreeRTOS Demo with MSP430FR4133 LaunchPad
+[![Build](https://github.com/stgloorious/freertos-msp430fr4133/actions/workflows/cmake-single-platform.yml/badge.svg)](https://github.com/stgloorious/freertos-msp430fr4133/actions/workflows/cmake-single-platform.yml)
+
 This project demonstrates FreeRTOS V10.6.0 on a Texas Instruments
 MSP430FR4133 microcontroller by blinking some LEDs.
 
