@@ -33,11 +33,12 @@ jobs:
            sudo ln -s $(pwd)/msp430-gcc-9.3.1.11_linux64 /usr/msp430-gcc
            cmake -B build
            make -C build
-           mv $(pwd)/build/app.hex ${HOME}/app.hex
+           mv $(pwd)/build/app.hex app.hex
+           pwd
+           ls -lah
            
     - uses: actions/upload-artifact@v3
       with:
         name: upload-bin
-        path: ${HOME}/app.hex
-
-    
+        if-no-files-found: error
+        path: app.hex 
