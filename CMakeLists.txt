@@ -16,6 +16,7 @@ set(TARGET_DEVICE MSP430FR4133)
 set(TARGET_INCLUDE_DIR /usr/msp430-gcc/include)
 set(CMAKE_C_COMPILER /usr/msp430-gcc/bin/msp430-elf-gcc)
 set(CMAKE_CXX_COMPILER /usr/msp430-gcc/bin/msp430-elf-g++)
+set(OBJCOPY /usr/msp430-gcc/bin/msp430-elf-objcopy)
 add_compile_options(-mmcu=${TARGET_DEVICE})
 add_compile_options(-Wall -Werror -Og -ggdb)
 add_link_options(-L ${TARGET_INCLUDE_DIR})
@@ -83,4 +84,10 @@ FILE(GLOB srcs src/*.c)
 add_executable(app ${srcs})
 target_link_libraries(app freertos_kernel freertos_kernel_port)
 
-install(CODE "execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/upload.sh ${CMAKE_BINARY_DIR})")
+add_custom_target(app.hex ALL DEPENDS app
+    COMMAND ${OBJCOPY} -O ihex app app.hex
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_custom_target(flash DEPENDS app.hex
+    COMMAND MSP430Flasher -e ERASE_ALL -w app.hex -v -z [VCC,RESET]
+    COMMAND rm -rd Log)
