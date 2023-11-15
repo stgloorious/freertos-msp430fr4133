@@ -81,11 +81,11 @@ FetchContent_MakeAvailable(freertos_kernel)
 FetchContent_MakeAvailable(freertos_kernel_port)
 
 FILE(GLOB srcs src/*.c)
-add_executable(app ${srcs})
-target_link_libraries(app freertos_kernel freertos_kernel_port)
+add_executable(app.elf ${srcs})
+target_link_libraries(app.elf freertos_kernel freertos_kernel_port)
 
-add_custom_target(app.hex ALL DEPENDS app
-    COMMAND ${OBJCOPY} -O ihex app app.hex
+add_custom_target(app.hex ALL DEPENDS app.elf
+    COMMAND ${OBJCOPY} -O ihex app.elf app.hex
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_custom_target(flash DEPENDS app.hex
